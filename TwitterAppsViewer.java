@@ -65,9 +65,8 @@ public class TwitterAppsViewer extends HttpServlet {
 			.getOAuthRequestToken(req.getRequestURL() + "?" + QUERY_MODE + "=" + QUERY_CALLBACK);
 			HttpSession session = req.getSession();
 			session.setAttribute(SESSION_REQUEST_TOKEN, reqToken);
-			String strUrl = reqToken.getAuthorizationURL();
-			strUrl = reqToken.getAuthenticationURL();
-			resp.sendRedirect(strUrl);
+			
+			resp.sendRedirect(reqToken.getAuthenticationURL());
 		} catch (TwitterException e) {
 			Logger logger = Logger.getLogger(this.getClass().getName());
 			logger.warning(e.getMessage());
@@ -82,7 +81,7 @@ public class TwitterAppsViewer extends HttpServlet {
 		AccessToken accessToken = null;
 		accessToken = (AccessToken)session.getAttribute(SESSION_ACCESS_TOKEN);
 		
-		// in case of already haveing access token
+		// in case of already having access token
 		if(accessToken != null){
 			doWriteHTML(req, resp);
 		}else{
