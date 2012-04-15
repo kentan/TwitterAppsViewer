@@ -79,26 +79,33 @@ public class TwitterAppsViewer extends HttpServlet {
 			throws IOException {
 
 		HttpSession session = req.getSession();
-		Twitter twitter = (new TwitterFactory()).getInstance();
-
-		String verifier = req.getParameter(SESSION_AUTH_VERIFIER);
 		AccessToken accessToken = null;
-
-		try {
-			accessToken = twitter.getOAuthAccessToken((RequestToken) session
-					.getAttribute(SESSION_REQUEST_TOKEN), verifier);
-		} catch (TwitterException e) {
-			Logger logger = Logger.getLogger(this.getClass().getName());
-			logger.warning(e.getMessage());
-		}
-
-		if (accessToken != null) {
-			session.setAttribute(SESSION_ACCESS_TOKEN, accessToken);
-			session.removeAttribute(SESSION_REQUEST_TOKEN);
+		accessToken = (AccessToken)session.getAttribute(SESSION_ACCESS_TOKEN);
+		
+		// in case of already haveing access token
+		if(accessToken != null){
 			doWriteHTML(req, resp);
-
-		} else {
-			resp.setContentType("text/plain");
+		}else{
+			Twitter twitter = (new TwitterFactory()).getInstance();
+	
+			String verifier = req.getParameter(SESSION_AUTH_VERIFIER);
+	
+			try {
+				accessToken = twitter.getOAuthAccessToken((RequestToken) session
+						.getAttribute(SESSION_REQUEST_TOKEN), verifier);
+			} catch (TwitterException e) {
+				Logger logger = Logger.getLogger(this.getClass().getName());
+				logger.warning(e.getMessage());
+			}
+	
+			if (accessToken != null) {
+				session.setAttribute(SESSION_ACCESS_TOKEN, accessToken);
+				session.removeAttribute(SESSION_REQUEST_TOKEN);
+				doWriteHTML(req, resp);
+	
+			} else {
+				resp.setContentType("text/plain");
+			}
 		}
 	}
 
